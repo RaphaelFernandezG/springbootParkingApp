@@ -1,5 +1,6 @@
 package com.example.springboot.parking.parkingcontroller;
 
+import com.example.springboot.parking.parkingentity.RegistrationVehicles;
 import com.example.springboot.parking.parkingentity.Vehicle;
 import com.example.springboot.parking.parkingrequest.EmailRequest;
 import com.example.springboot.parking.parkingrequest.VehicleRequest;
@@ -49,6 +50,11 @@ public class VehicleController {
     public void sendEmail(@Valid@RequestBody EmailRequest emailRequest){
         vehicleService.sendEmailRequest(emailRequest);
 
+    }
+
+    @GetMapping("/listRegistrationVehicles")
+    public List<RegistrationVehicles> listRegistrationVehicles(){
+        return vehicleService.listRegistrationVehicles();
     }
 
 

@@ -2,6 +2,7 @@ package com.example.springboot.parking.parkingcontroller;
 
 import com.example.springboot.parking.parkingentity.TypeUser;
 import com.example.springboot.parking.parkingentity.User;
+import com.example.springboot.parking.parkingrequest.EmailRequest;
 import com.example.springboot.parking.parkingrequest.RequestUser;
 import com.example.springboot.parking.parkingservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +25,18 @@ public class UserController {
     }
 
     @DeleteMapping("/delUser")
-    public void deleteUser(@Valid@RequestBody User user){
-        userService.deleteUser(user);
+    public void deleteUser(@Valid @RequestBody RequestUser requestUser){
+        userService.deleteUserRequest(requestUser);
     }
 
     @GetMapping("/listUsers")
     public List<User> listUsers(){
         return userService.listUsers();
+    }
+
+    @PostMapping("/login")
+    public void login(@Valid @RequestBody RequestUser requestUser){
+        userService.validateLogin(requestUser);
     }
 
     @PutMapping(path = "/updateUser/{userId}")
@@ -45,4 +51,10 @@ public class UserController {
         userService.updateUser(userId, name, cedula, direction, email, /*typeUserId,*/ password);
 
     }
+
+    /*@PostMapping("/sendEmail")
+    public void sendEmail(@Valid @RequestBody EmailRequest emailRequest){
+        userService.sendEmailRequest(emailRequest);
+
+    }*/
 }

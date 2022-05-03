@@ -1,8 +1,12 @@
 package com.example.springboot.parking.parkingservice;
 
 import com.example.springboot.parking.parkingentity.RegistrationVehicles;
+import com.example.springboot.parking.parkingentity.TypeUser;
+import com.example.springboot.parking.parkingentity.User;
 import com.example.springboot.parking.parkingentity.Vehicle;
 import com.example.springboot.parking.parkingrepository.RegistrationVehicleRepository;
+import com.example.springboot.parking.parkingrepository.TypeUserRepository;
+import com.example.springboot.parking.parkingrepository.UserRepository;
 import com.example.springboot.parking.parkingrepository.VehicleRepository;
 import com.example.springboot.parking.parkingrequest.EmailRequest;
 import com.example.springboot.parking.parkingrequest.VehicleRequest;
@@ -31,6 +35,12 @@ public class VehicleService {
     private VehicleRepository vehicleRepository;
     @Autowired
     private RegistrationVehicleRepository registrationVehicleRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private TypeUserRepository typeUserRepository;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -111,7 +121,6 @@ public class VehicleService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"No se puede Registrar Ingreso, ya existe la placa ");
             }
             Vehicle vehicle=new Vehicle(request.getPlaca());
-
             vehicleRepository.save(vehicle);
             throw new ResponseStatusException(HttpStatus.CREATED,"Id: "+vehicle.getId() +" --> Id Generado Del Registro ");
         }
@@ -122,33 +131,36 @@ public class VehicleService {
 
     @ResponseStatus
     public void delVehicleRequest(VehicleRequest request) {
-
         Optional<Vehicle> userOptional = vehicleRepository.findVehicleByPlaca(request.getPlaca());
-
         if(userOptional.isPresent()) {
             Vehicle vehicle=new Vehicle(request.getPlaca());
             vehicleRepository.delete(vehicle);
-
-            //vehicleRepository.deleteVehicleByPlaca(request.getPlaca());
             throw new ResponseStatusException(HttpStatus.OK, "Salida Registrada");
-
         }
-
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede Registrar Salida, no existe la placa ingresada ");
-
-
-
-
     }
 
     @ResponseStatus
     public void sendEmailRequest(EmailRequest emailRequest){
-        Optional<Vehicle> userOptional = vehicleRepository.findVehicleByPlaca(emailRequest.getPlaca());
-        if(userOptional.isPresent()){
-            throw new ResponseStatusException(HttpStatus.OK,"El Correo Ha Sido Enviado");
+        Optional<Vehicle> vehicleOptional = vehicleRepository.findVehicleByPlaca(emailRequest.getPlaca());
+        Optional<TypeUser> typeUserOptional = typeUserRepository.findById(1L);
+        Optional<User> userAdminOptional = userRepository.findByTypeUserId(typeUserOptional.get());
+        System.out.println(userAdminOptional);
+        if(vehicleOptional.isPresent()){
+            Optional<User> userOptional = userRepository.findUserByEmail(emailRequest.getEmail());
+            if(userOptional.isPresent()){
+                System.out.println("Se envio el correo desde "+userAdminOptional.get().getEmail());
+                System.out.println("Correo enviado a "+userOptional.get().getEmail()+
+                        " Con placa de vehiculo "+vehicleOptional.get().getPlaca());
+                System.out.println(emailRequest);
+                throw new ResponseStatusException(HttpStatus.OK,"El Correo Ha Sido Enviado");
+            }
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"El Correo al cual desea enviar no se encontro registrado, verifique e intente nuevamente");
         }
-        System.out.println("Metodo Send Email Request");
-
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"La placa a enviar correo no se encuentra registrada");
+    }
+
+    public List<RegistrationVehicles> listRegistrationVehicles() {
+        return registrationVehicleRepository.findAll();
     }
 }

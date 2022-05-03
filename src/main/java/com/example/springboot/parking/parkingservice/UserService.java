@@ -5,6 +5,7 @@ import com.example.springboot.parking.parkingentity.User;
 import com.example.springboot.parking.parkingentity.Vehicle;
 import com.example.springboot.parking.parkingrepository.TypeUserRepository;
 import com.example.springboot.parking.parkingrepository.UserRepository;
+import com.example.springboot.parking.parkingrequest.EmailRequest;
 import com.example.springboot.parking.parkingrequest.RequestUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,6 +48,15 @@ public class UserService {
         Optional<User> userOptional = userRepository.findUserByCedula(user.getCedula());
         if(userOptional.isPresent()){
             userRepository.delete(user);
+            throw new ResponseStatusException(HttpStatus.OK,"El usuario ha sido eliminado ");
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede Eliminar, no se encontro la cedula ");
+    }
+
+    public void deleteUserRequest(RequestUser requestUser){
+        Optional<User> userOptional = userRepository.findUserByCedula(requestUser.getCedula());
+        if(userOptional.isPresent()){
+            userRepository.delete(userOptional.get());
             throw new ResponseStatusException(HttpStatus.OK,"El usuario ha sido eliminado ");
         }
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede Eliminar, no se encontro la cedula ");
@@ -98,4 +108,33 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.OK, "Email Update");
         }
     }
+
+    public void validateLogin(RequestUser requestUser) {
+        Optional<User> optionalRequestEmail= userRepository.findUserByEmail(requestUser.getEmail());
+        if(optionalRequestEmail.isPresent()){
+            if (optionalRequestEmail.get().getTypeUserId().getId()==1L){
+                if (Objects.equals(requestUser.getEmail(),optionalRequestEmail.get().getEmail())){
+                    throw new ResponseStatusException(HttpStatus.ACCEPTED, "Bienvenido "+optionalRequestEmail.get().getName()+" User Admin" );
+                }
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Contraseña Incorrecta");
+            }
+            if (Objects.equals(requestUser.getEmail(),optionalRequestEmail.get().getEmail())){
+                throw new ResponseStatusException(HttpStatus.ACCEPTED, "Bienvenido "+optionalRequestEmail.get().getName());
+            }
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Contraseña Incorrecta");
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se ha encontrado el usuario "+"\nPor Favor Verifique");
+
+    }
+
+    /*@ResponseStatus
+    public void sendEmailRequest(EmailRequest emailRequest){
+        Optional<User> userOptional = userRepository.findUserByEmail(emailRequest.getEmail());
+        if(userOptional.isPresent()){
+            System.out.println();
+            throw new ResponseStatusException(HttpStatus.OK,"El Correo Ha Sido Enviado");
+        }
+        System.out.println("Metodo Send Email Request");
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"La placa a enviar correo no se encuentra registrada");
+    }*/
 }

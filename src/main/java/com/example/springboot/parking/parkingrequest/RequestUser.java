@@ -2,10 +2,13 @@ package com.example.springboot.parking.parkingrequest;
 
 import com.example.springboot.parking.parkingentity.TypeUser;
 
+import javax.validation.constraints.NotBlank;
+
 
 public class RequestUser {
 
     private String name;
+
     private String cedula;
     private String direction;
     private String email;

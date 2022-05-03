@@ -28,14 +28,15 @@ public class User {
     public User() {
     }
 
-    /*public User(String name, String cedula, String direction, String email, TypeUser typeUserId, String password) {
+
+    public User(String name, String cedula, String direction, String email, TypeUser typeUserId, String password) {
         this.name = name;
         this.cedula = cedula;
         this.direction = direction;
         this.email = email;
         this.typeUserId = typeUserId;
         this.password = password;
-    }*/
+    }
 
     public User(RequestUser request, TypeUser type) {
         this.name = request.getName();
